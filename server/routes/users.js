@@ -4,7 +4,7 @@ import express from 'express';
 const router = express.Router();
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.send('<h1 style="color:red;">LISTA DE USUARIOS</h1>');
 });
  
 //module.exports = router;
