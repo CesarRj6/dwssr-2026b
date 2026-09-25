@@ -1,22 +1,24 @@
 //FUNCION PARA MANEJAR ERRORES
-//❌var createError = require('http-errors');
 import createError from 'http-errors';
 //IMPORTA EL FRAMEWORK EXPRESS
-//❌var express = require('express');
 import express from 'express';
 //IMPORTA EL MODULO PATH PARA MANEJAR RUTAS
-//❌var path = require('path');
 import path from 'node:path';
 //IMPORTA EL MODULO PARA MANEJAR COOKIES
-//❌var cookieParser = require('cookie-parser');
 import cookieParser from 'cookie-parser';
 //IMPORTA EL MODULO PARA MANEJAR LOGS
-//❌var logger = require('morgan');
 import logger from 'morgan';
+//Imports para crear dirnme
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+//CREANDO LAS VARIABLES
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 //IMPORTA EL MODULO PARA MANEJAR RUTAS DE LA APLICACION
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+import indexRouter from'./routes/index.js'
+import usersRouter from'./routes/index.js'
+
 //CREA UNA INSTANCIA DE EXPRESS (LA APLICACION)
 var app = express();
  
@@ -51,4 +53,5 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
  
-module.exports = app;
+//module.exports = app;
+export default app;
