@@ -1,70 +1,68 @@
-//funcion para manejar errores
+// FUNCION PARA MANEJAR ERRORES
 import createError from 'http-errors'
-//importa el framework express
+// IMPORTA EL FRAMEWORK EXPRESS
 import express from 'express'
-//imporeta modulos para importar rutas
+// IMPORTA EL MODULO PATH PARA MANEJAR RUTAS
 import path from 'node:path'
-//importa modulos para manejar cookies
-import cookieParser from 'cookie-parser';
-//importa modulos para manejar logs
+// IMPORTA EL MODULO PARA MANEJAR COOKIES
+import cookieParser from 'cookie-parser'
+// IMPORTA EL MODULO PARA MANEJAR LOGS
 import logger from 'morgan'
-//importando debug
-import createdebug from 'debug'
-//imports para crear Dirname
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
-//importando el temnplate engine handlebars
-import hbs from 'hbs'
+import createDebug from "debug"
+const debug = createDebug('dwssr-2026:server:')
 
+// import crear dirname
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
 
-//ejecutando importdebug
-const debug = createdebug('dwssr-2026b:server')
-debug("🔨 creando backend")
-
-
-//creando las variables 
+// creando las variables
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-//importa las rutas de la aplicacion
+// importando el hbs
+import hbs from 'hbs'
+
+// IMPORTA LAS RUTAS DE LA APLICACION
 import indexRouter from '#routes/index.js'
 import usersRouter from '#routes/users.js'
-//Importando el registrador del helper 
-import { registerViteHelper } from './lib/vite.js';
 
-//crea la aplicacion de express
+// importando el registrador helper
+import { registerViteHelpers } from './lib/vite.js'
+
+// CREA UNA INSTANCIA DE EXPRESS (LA APLICACION)
 const app = express();
 
-
-
-// view engine setup, configura el motor de vistas
+// CONFIGURACION DE MOTOR DE VISTAS (HANDLEBARS)
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
-//Registro helper 
-registerViteHelper(hbs)
 
-//configurar middelwares de la aplicacion
+// registro helper de vite
+registerViteHelpers(hbs);
+
+// CREANDO LA APLICACION EXPRESS
+debug("🔨 creando backend");
+
+// CONFIGURACION DE MIDDLEWARES
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-//Archivos estaticos para produccion
-if (process.env.NODE_ENV == 'production') {
-  app.use
+// archivos estaticos para produccion
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '..', 'dist')));
 }
 
+// CONFIGURACION DE ARCHIVOS ESTATICOS (PUBLIC)
+debug("🔨 creando servidor de archivos estaticos");
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
-
-debug("🔨 creando servidor de archivos eataticos")
-//configura la ruta de archivos estaticos
-app.use(express.static(path.join(__dirname, '..','public')));
-
-debug("🛤️  registrando rutas")
+// CONFIGURACION DE RUTAS (REGISTRAMOS)
+debug("🔨 registrando rutas");
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-// catch 404 and forward to error handler
+// CAPTURA DE ERRORES 404 Y ENVIO AL MANEJADOR DE ERRORES
 app.use(function(req, res, next) {
   next(createError(404));
 });
@@ -75,7 +73,7 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
+  // RENDERIZA LA PAGINA DE ERROR CON EL ESTATUS DEL ERROR
   res.status(err.status || 500);
   res.render('error');
 });

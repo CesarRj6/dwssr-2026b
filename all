@@ -1,0 +1,11 @@
+
+> dwssr-2026b@0.0.0 dev
+> DEBUG=dwssr-2026b:* nodemon ./server/bin/www.js
+
+[33m[nodemon] 3.1.14[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node ./server/bin/www.js`[39m
+[0mGET / [32m200 [0m24.005 ms - 191[0m
+[0mGET /favicon.ico [33m404 [0m5.624 ms - 1084[0m
