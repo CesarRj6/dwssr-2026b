@@ -1,36 +1,46 @@
-// Importando el configurador de Vite
-import { defineConfig } from "vite"
+//importando el condigurador de vite
+import {defineConfig} from "vite"
 
-// Importando el administrador de rutas de Node
-import { resolve, dirname } from "node:path"
-import { fileURLToPath } from 'node:url'
+//
+import tailwindcss from '@tailwindcss/vite'
 
-// Creando las variables de rutas
+//imports para crear Dirname
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+//creando las variables de rutas
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+//importando el administrador de rutas de node
+import {resolve} from "node:path"
+
 export default defineConfig({
-  // Directorio raíz de los archivos fuente del front-end
-  root: "src",
-
-  // Configurando un servidor de desarrollo
-  server: {
-    port: 5173,
-    strict: true
-  },
-
-  // Configurando el build
-  build: {
-    outDir: "../dist",
-    emptyOutDir: true,
-    manifest: true,
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, "src/main.js"),
-      }
-    }
-  },
-
-  // Configuración para el desarrollo
-  publicDir: false
+    //directorio raiz de los archivos fuente del front-end
+    root: "src",
+    //configurando un servidor de desarrollo
+    //agregando a vite pliging de tailwindcss
+    plugins: [tailwindcss()],
+    server: {
+        //pueto de listening
+        port: 5173,
+        //Rigidez del puerto
+        strict: true
+    },
+    //configurando el build
+    build: {
+        //Directorio de salida del js para produccion
+        outDir: "../dist",
+        //asegurando limpieza del folder de produccion
+        emptyOutDir: true,
+        //generar manifiesto para el servidor
+        manifest: true,
+        //opciones de empaquetado
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, "src/main.js"),
+            }
+        }
+    },
+    //configuracion para el desarrollo 
+    publicDir: false
 })
