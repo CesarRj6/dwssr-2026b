@@ -1,74 +1,59 @@
 // FUNCION PARA MANEJAR ERRORES
-import createError from 'http-errors'
+import createError from 'http-errors';
 // IMPORTA EL FRAMEWORK EXPRESS
-import express from 'express'
-// IMPORTA EL MODULO PATH PARA MANEJAR RUTAS
-import path from 'node:path'
+import express from 'express';
+// IMPORTA EL MODULO PATH Y UTILIDADES DE URL
+import path, { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 // IMPORTA EL MODULO PARA MANEJAR COOKIES
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
 // IMPORTA EL MODULO PARA MANEJAR LOGS
-import logger from 'morgan'
-import createDebug from "debug"
-const debug = createDebug('dwssr-2026:server:')
+import logger from 'morgan';
 
-// import crear dirname
-import { fileURLToPath } from 'node:url'
-import { dirname } from 'node:path'
+// importando hbs
+import hbs from 'hbs';
 
-// creando las variables
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-// importando el hbs
-import hbs from 'hbs'
-
-// IMPORTA LAS RUTAS DE LA APLICACION
-import indexRouter from '#routes/index.js'
-import usersRouter from '#routes/users.js'
+// Importa usando el nombre sugerido por el linter
+import router from '#routes/index.js';
+// eslint-disable-next-line import-x/no-rename-default
+import usersRouter from '#routes/users.js';
 
 // importando el registrador helper
-import { registerViteHelpers } from './lib/vite.js'
+import registerViteHelper from '#server/lib/vite.js';
+
+// creando las variables de directorio
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // CREA UNA INSTANCIA DE EXPRESS (LA APLICACION)
 const app = express();
 
-// CONFIGURACION DE MOTOR DE VISTAS (HANDLEBARS)
+// view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
-// registro helper de vite
-registerViteHelpers(hbs);
+// REGISTRA EL HELPER DE VITE
+registerViteHelper(hbs);
 
-// CREANDO LA APLICACION EXPRESS
-debug("🔨 creando backend");
-
-// CONFIGURACION DE MIDDLEWARES
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../dist')));
 
-// archivos estaticos para produccion
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '..', 'dist')));
-}
-
-// CONFIGURACION DE ARCHIVOS ESTATICOS (PUBLIC)
-debug("🔨 creando servidor de archivos estaticos");
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
-// CONFIGURACION DE RUTAS (REGISTRAMOS)
-debug("🔨 registrando rutas");
-app.use('/', indexRouter);
+app.use('/', router);
 app.use('/users', usersRouter);
 
+
 // CAPTURA DE ERRORES 404 Y ENVIO AL MANEJADOR DE ERRORES
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, _next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
