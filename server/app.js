@@ -15,12 +15,16 @@ import morgan from 'morgan';
 import hbs from 'hbs';
 
 // Importa usando el nombre sugerido por el linter
+// eslint-disable-next-line import-x/no-rename-default
 import router from '#routes/index.js';
 // eslint-disable-next-line import-x/no-rename-default
 import usersRouter from '#routes/users.js';
 
 // importando el registrador helper
-import registerViteHelper from '#server/lib/vite.js';
+import registerViteHelper from './lib/vite.js';
+
+//importando la configuracion de winston logger
+import logger from './lib/winston.js'
 
 // creando las variables de directorio
 const __filename = fileURLToPath(import.meta.url);
@@ -36,7 +40,14 @@ app.set('view engine', 'hbs');
 // REGISTRA EL HELPER DE VITE
 registerViteHelper(hbs);
 
-app.use(morgan('dev'));
+//morgan manda sus logs de peticiones http a winston en lugar de imprimirlos directo en consola
+app.use(
+  morgan('dev', {
+    stream: {
+      write: (msg) => logger.info(msg.trim())
+    }
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
