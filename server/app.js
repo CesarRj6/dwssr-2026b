@@ -1,75 +1,82 @@
-// FUNCION PARA MANEJAR ERRORES
+// Funcion para manejar errores en la aplicacion
 import createError from 'http-errors';
-// IMPORTA EL FRAMEWORK EXPRESS
+// Importar el framework express
 import express from 'express';
-// IMPORTA EL MODULO PATH Y UTILIDADES DE URL
+// Importa modulos para manejar rutas
 import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-// IMPORTA EL MODULO PARA MANEJAR COOKIES
+// Importa modulos para manejar cookies
 import cookieParser from 'cookie-parser';
-// IMPORTA EL MODULO PARA MANEJAR LOGS
+// Importa modulos para manejar logs
 import morgan from 'morgan';
-
-// importando hbs
+// Imports para crear Dirname
+import { fileURLToPath } from 'node:url';
+// Importando el template engine Handlebars
 import hbs from 'hbs';
 
-// Importa usando el nombre sugerido por el linter
+// Importar las rutas de la aplicacion
 // eslint-disable-next-line import-x/no-rename-default
 import router from '#routes/index.js';
 // eslint-disable-next-line import-x/no-rename-default
 import usersRouter from '#routes/users.js';
-
-// importando el registrador helper
+// Importando el registrador del helper
 import registerViteHelper from './lib/vite.js';
 
-//importando la configuracion de winston logger
-import logger from './lib/winston.js'
+// Importando la configuracion de winston logger
+import logger from './lib/winston.js';
 
-// creando las variables de directorio
+// Creando la variables de rutas
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// CREA UNA INSTANCIA DE EXPRESS (LA APLICACION)
+// Crear la aplicacion express
+logger.info('🛠️ Creando backend');
 const app = express();
 
-// view engine setup
+// Configurar el motor de vistas con hbs
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
-
-// REGISTRA EL HELPER DE VITE
+// Registro Helper
 registerViteHelper(hbs);
 
-//morgan manda sus logs de peticiones http a winston en lugar de imprimirlos directo en consola
+// Configurar middlewares de la aplicacion
 app.use(
   morgan('dev', {
     stream: {
-      write: (msg) => logger.info(msg.trim())
-    }
+      write: (msg) => logger.info(msg.trim()),
+    },
   }),
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, '../dist')));
 
+// Archivos estaticos para produccion
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '..', 'dist')));
+}
+
+// Configurar la carpeta de archivos estaticos
+logger.info('🛠️ Creando servidor de Archivos Estáticos');
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Registramos las rutas de la aplicacion
+logger.info('🗺️ Registrando rutas');
 app.use('/', router);
 app.use('/users', usersRouter);
 
-
-// CAPTURA DE ERRORES 404 Y ENVIO AL MANEJADOR DE ERRORES
+// Capturamos errores 404 y los enviamos al manejador de errores
 app.use((req, res, next) => {
   next(createError(404));
 });
 
-// error handler
+// Manejador de errores
 app.use((err, req, res, _next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // RENDERIZA LA PAGINA DE ERROR CON EL ESTATUS DEL ERROR
+  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
