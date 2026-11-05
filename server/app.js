@@ -10,16 +10,14 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 // Imports para crear Dirname
 import { fileURLToPath } from 'node:url';
-// Importando el template engine Handlebars
-import hbs from 'hbs';
+// Importando la funcion de configuracion de Hbs
 
 // Importar las rutas de la aplicacion
 // eslint-disable-next-line import-x/no-rename-default
 import router from '#routes/index.js';
 // eslint-disable-next-line import-x/no-rename-default
 import usersRouter from '#routes/users.js';
-// Importando el registrador del helper
-import registerViteHelper from './lib/vite.js';
+import configureHandlebars from './lib/handlebars.js';
 
 // Importando la configuracion de winston logger
 import logger from './lib/winston.js';
@@ -32,11 +30,8 @@ const __dirname = dirname(__filename);
 logger.info('🛠️ Creando backend');
 const app = express();
 
-// Configurar el motor de vistas con hbs
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
-// Registro Helper
-registerViteHelper(hbs);
+// Configurar Handlebars usando el módulo de configuración
+configureHandlebars(app);
 
 // Configurar middlewares de la aplicacion
 app.use(
